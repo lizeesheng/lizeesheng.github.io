@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>压缩包类型编码规则</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        h3 { color: #3498db; }
+        table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .note { background-color: #f1f8e9; padding: 10px; border-left: 4px solid #8bc34a; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h2>压缩包类型编码规则</h2>
+
+    <h3>位定义（最低位 → 高位）</h3>
+    <table>
+        <tr>
+            <th>二进制位</th>
+            <th>压缩类型</th>
+        </tr>
+        <tr>
+            <td>00000001 (bit0)</td>
+            <td>.7z</td>
+        </tr>
+        <tr>
+            <td>00000010 (bit1)</td>
+            <td>.zip</td>
+        </tr>
+        <tr>
+            <td>00000100 (bit2)</td>
+            <td>.tar</td>
+        </tr>
+        <tr>
+            <td>00001000 (bit3)</td>
+            <td>.gz</td>
+        </tr>
+        <tr>
+            <td>00010000 (bit4)</td>
+            <td>.xz</td>
+        </tr>
+    </table>
+
+    <h3>解析规则</h3>
+    <h4>最高位（最左侧bit）判定</h4>
+    <ul>
+        <li>如果最高位 = 1 → 从右向左解析（低位→高位）</li>
+        <li>如果最高位 = 0 → 从左向右解析（高位→低位）</li>
+    </ul>
+
+    <h4>扩展名生成</h4>
+    <ul>
+        <li>每个为 1 的位对应一个扩展名</li>
+        <li>解析顺序决定扩展名顺序：
+            <ul>
+                <li>从右向左：先解析的扩展名是内层压缩包</li>
+                <li>从左向右：先解析的扩展名是外层压缩包</li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="note">
+        <strong>注意事项：</strong><br>
+        单个类型强制要求：当只有一个压缩类型时，最高位必须为 0（例如 .7z 只能表示为 00000001，不能是 10000001）。
+    </div>
+
+    <h3>示例说明</h3>
+    <table>
+        <tr>
+            <th>二进制值</th>
+            <th>最高位</th>
+            <th>解析方向</th>
+            <th>扩展名顺序</th>
+            <th>最终扩展名</th>
+        </tr>
+        <tr>
+            <td>10001100</td>
+            <td>1</td>
+            <td>右→左</td>
+            <td>.tar → .gz</td>
+            <td>.tar.gz</td>
+        </tr>
+        <tr>
+            <td>00001100</td>
+            <td>0</td>
+            <td>左→右</td>
+            <td>.gz → .tar</td>
+            <td>.gz.tar</td>
+        </tr>
+        <tr>
+            <td>00000001</td>
+            <td>0</td>
+            <td>左→右</td>
+            <td>.7z</td>
+            <td>.7z</td>
+        </tr>
+        <tr>
+            <td>00101000</td>
+            <td>0</td>
+            <td>左→右</td>
+            <td>.gz → .xz</td>
+            <td>.gz.xz</td>
+        </tr>
+        <tr>
+            <td>10100001</td>
+            <td>1</td>
+            <td>右→左</td>
+            <td>.7z → .xz</td>
+            <td>.7z.xz</td>
+        </tr>
+    </table>
+
+    <h3>关键点</h3>
+    <ul>
+        <li><strong>位顺序</strong>：扩展名的层级关系由解析方向决定（内层压缩包先解析）。</li>
+        <li><strong>高位限制</strong>：单个压缩类型时最高位必须为 0，避免误触发多类型解析逻辑。</li>
+        <li><strong>无效位</strong>：未定义的位（bit5-bit6）始终为 0，解析时忽略。</li>
+    </ul>
+</body>
+</html>
