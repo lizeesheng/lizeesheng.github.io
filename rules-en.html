@@ -74,7 +74,7 @@ The final extension
 <tr>
 <td>10001100</td>
 <td>1</td>
-<td>右→左</td>
+<td>right→left</td>
 <td>.tar → .gz</td>
 <td>.tar.gz</td>
 </tr>
@@ -107,11 +107,11 @@ The final extension
 <td>.7z.xz</td>
 </tr>
 </table>
-<h3> key points
+<h3> Key points
 <ul>
-Bit Order: the hierarchy of extensions is determined by the direction of parsing (the inner package parses first) . Li
-High bit limit: the highest bit must be 0 for a single compression type to avoid triggering the multi-type parsing logic by mistake. Li
-< Li > < strong > invalid bit </strong > : undefined bit (bit5-bit6) is always 0 and ignored when parsing. Li
+<li><strong>Bit Order</strong>: the hierarchy of extensions is determined by the direction of parsing (the inner package parses first) .</li>
+<li><strong>High Bit Limit</strong>: the highest bit must be 0 for a single compression type to avoid triggering the multi-type parsing logic by mistake.</li>
+<li><strong>Invalid Bit</strong>: undefined bit (bit5-bit6) is always 0 and ignored when parsing.</li>
 </ul>
 </body>
 </html>
