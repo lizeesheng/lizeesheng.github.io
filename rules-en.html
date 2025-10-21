@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Encoding rules for compressed Packet's types</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        h3 { color: #3498db; }
+        table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .note { background-color: #f1f8e9; padding: 10px; border-left: 4px solid #8bc34a; margin: 10px 0; }
+    </style>
+</head>
+<body>
+Encoding rules for compressed packet types
+<h3> bit definition (lowest bit → high bit)
+<table>
+<tr>
+Binary bits
+Compression type
+</tr>
+<tr>
+<td>00000001 (bit0)</td>
+<td>.7z</td>
+</tr>
+<tr>
+<td>00000010 (bit1)</td>
+<td>.zip</td>
+</tr>
+<tr>
+<td>00000100 (bit2)</td>
+<td>.tar</td>
+</tr>
+<tr>
+<td>00001000 (bit3)</td>
+<td>.gz</td>
+</tr>
+<tr>
+<td>00010000 (bit4)</td>
+<td>.xz</td>
+</tr>
+</table>
+Parsing rules
+<h4> highest bit (leftmost bit) decision
+<ul>
+If the highest bit = 1→ resolves from right to left (low → High) </li >
+If the highest bit = 0→ resolves from left to right (high → low) </li >
+</ul>
+<h4> extension generation </h4>
+<ul>
+Each 1 bit corresponds to an extension </li >
+Parsing order determines the order of the extensions:
+<ul>
+Right-to-left: the first parsed extension is the inner package
+From left to right: the first parsed extension is the outer package
+</ul>
+</li>
+</ul>
+<div class="note">
+Notes:
+A single type mandates that the most significant bit must be 0 when there is only one compression type (for example. 7z can only be represented as 00000001, not 10000001) .
+</div>
+<h3> example illustration </h3>
+<table>
+<tr>
+Binary value
+The highest bit
+Analytical direction
+The order of the extensions
+The final extension
+</tr>
+<tr>
+<td>10001100</td>
+<td>1</td>
+<td>右→左</td>
+<td>.tar → .gz</td>
+<td>.tar.gz</td>
+</tr>
+<tr>
+<td>00001100</td>
+<td>0</td>
+<td>left→right</td>
+<td>.gz → .tar</td>
+<td>.gz.tar</td>
+</tr>
+<tr>
+<td>00000001</td>
+<td>0</td>
+<td>left→right</td>
+<td>.7z</td>
+<td>.7z</td>
+</tr>
+<tr>
+<td>00101000</td>
+<td>0</td>
+<td>left→right</td>
+<td>.gz → .xz</td>
+<td>.gz.xz</td>
+</tr>
+<tr>
+<td>10100001</td>
+<td>1</td>
+<td>right→left</td>
+<td>.7z → .xz</td>
+<td>.7z.xz</td>
+</tr>
+</table>
+<h3> key points
+<ul>
+Bit Order: the hierarchy of extensions is determined by the direction of parsing (the inner package parses first) . Li
+High bit limit: the highest bit must be 0 for a single compression type to avoid triggering the multi-type parsing logic by mistake. Li
+< Li > < strong > invalid bit </strong > : undefined bit (bit5-bit6) is always 0 and ignored when parsing. Li
+</ul>
+</body>
+</html>
